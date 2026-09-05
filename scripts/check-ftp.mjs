@@ -128,7 +128,15 @@ try {
 		pass('target directory is empty', 'nothing here to overwrite');
 	} else {
 		const names = list.map((f) => f.name);
-		pass(`target directory holds ${list.length} item(s)`, names.slice(0, 12).join('  ') + (names.length > 12 ? ' …' : ''));
+		const shown = process.argv.includes('--list') ? names.length : 12;
+		const label = list
+			.slice(0, shown)
+			.map((f) => (f.isDirectory ? `${f.name}/` : f.name))
+			.join('  ');
+		pass(
+			`target directory holds ${list.length} item(s)`,
+			label + (names.length > shown ? `  … (+${names.length - shown}, pass --list for all)` : ''),
+		);
 
 		const collisions = names.filter((n) =>
 			['.htaccess', 'index.php', 'wp-config.php', 'wp-content', 'index.html'].includes(n));

@@ -9,6 +9,10 @@ on:
         description: 'Also upload and delete a scratch file to prove write access'
         type: boolean
         default: false
+      full_list:
+        description: 'Print every item in the target directory'
+        type: boolean
+        default: false
 
 jobs:
   verify:
@@ -28,7 +32,10 @@ jobs:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_REMOTE_DIR: ${{ vars.FTP_REMOTE_DIR }}
-        run: node scripts/check-ftp.mjs ${{ inputs.write_test && '--write' || '' }}
+        run: |
+          node scripts/check-ftp.mjs \
+            ${{ inputs.write_test && '--write' || '' }} \
+            ${{ inputs.full_list && '--list' || '' }}
 
       - name: Check whether the site is reachable
         if: always()
