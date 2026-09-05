@@ -1,0 +1,236 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import headshot from '../../assets/headshot.png';
+import {
+	bio,
+	bioCoda,
+	bioJoke,
+	services,
+	experience,
+	credentials,
+	press,
+	skills,
+	skillsPunchline,
+	links,
+	testimonials,
+} from '../../data/site';
+
+const lastSkill = skills[skills.length - 1];
+const mainSkills = skills.slice(0, -1);
+---
+
+<Base
+	title="Bio"
+	section="Design + Product Development leader · Chicago"
+	description="Gabriel Prero — 15+ years in Industrial/Product Design, cross-disciplinary Design Leadership, and Physical Product Development Leadership."
+>
+	{/* ---------- Masthead ---------- */}
+	<section class="field items-end gap-y-10 pt-16 pb-20 md:pt-24 md:pb-28">
+		<h1 class="display col-span-4 text-[clamp(3.25rem,14vw,13rem)] md:col-span-5 xl:col-span-11" data-reveal>
+			Bio
+		</h1>
+		<div class="col-span-4 md:col-span-3 xl:col-span-4" data-reveal style="--reveal-delay:40ms">
+			<Image
+				src={headshot}
+				alt="Portrait of Gabriel Prero"
+				widths={[400, 800]}
+				sizes="(min-width: 80rem) 25vw, (min-width: 48rem) 36vw, 92vw"
+				class="w-full bg-gray-050 object-cover grayscale"
+				loading="eager"
+			/>
+		</div>
+	</section>
+
+	{/* ---------- Statement ---------- */}
+	<section class="field pb-24 md:pb-32">
+		<div class="col-span-4 md:col-span-8 xl:col-span-16">
+			<div class="rule-ink origin-left" data-draw></div>
+		</div>
+
+		<div class="prose-swiss col-span-4 pt-10 md:col-span-8 xl:col-span-10 xl:col-start-4">
+			{
+				bio.map((para, i) => (
+					<p
+						class:list={[
+							'text-lg leading-relaxed text-gray-700 md:text-xl',
+							i > 0 && 'mt-6',
+						]}
+						data-reveal
+						style={`--reveal-delay:${i * 40}ms`}
+					>
+						{para}
+					</p>
+				))
+			}
+
+			<p class="mt-10 text-base leading-relaxed text-gray-600" data-reveal style="--reveal-delay:80ms">
+				{bioCoda}
+			</p>
+
+			<p
+				class="mt-10 text-[clamp(1.25rem,2.6vw,1.9rem)] leading-snug font-medium tracking-tight text-balance"
+				data-reveal
+				style="--reveal-delay:120ms"
+			>
+				{bioJoke}
+			</p>
+		</div>
+	</section>
+
+	{/* ---------- Services ---------- */}
+	<SectionHead index="01" title="What I can do for you" class="mb-10 md:mb-14" />
+	<div class="field pb-24 md:pb-32">
+		<ul class="col-span-4 md:col-span-8 xl:col-span-16">
+			{
+				services.map((service, i) => (
+					<li
+						class="group grid grid-cols-[3rem_1fr] items-baseline gap-4 border-b border-gray-100 py-5 md:grid-cols-[5rem_1fr]"
+						data-reveal
+						style={`--reveal-delay:${(i % 4) * 40}ms`}
+					>
+						<span class="label text-gray-300 transition-colors duration-300 group-hover:text-red">
+							{String(i + 1).padStart(2, '0')}
+						</span>
+						<span class="text-base leading-snug tracking-tight text-balance md:text-lg">{service}</span>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+
+	{/* ---------- Experience ---------- */}
+	<SectionHead index="02" title="Experience" class="mb-10 md:mb-14" />
+	<div class="field pb-24 md:pb-32">
+		<ol class="col-span-4 border-t border-ink md:col-span-8 xl:col-span-16">
+			{
+				experience.map((job, i) => (
+					<li
+						class="grid grid-cols-1 gap-1 border-b border-gray-100 py-5 md:grid-cols-[1fr_1fr] md:gap-8"
+						data-reveal
+						style={`--reveal-delay:${(i % 4) * 40}ms`}
+					>
+						<span class="text-base leading-snug font-medium tracking-tight text-balance md:text-lg">
+							{job.role}
+						</span>
+						<span class="text-sm text-gray-500 md:text-base">{job.org}</span>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+
+	{/* ---------- Credentials + Press ---------- */}
+	<SectionHead index="03" title="Education, patents & awards" class="mb-10 md:mb-14" />
+	<div class="field gap-y-12 pb-24 md:pb-32">
+		<ul class="col-span-4 md:col-span-8 xl:col-span-9">
+			{
+				credentials.map((item, i) => (
+					<li
+						class="flex items-baseline gap-4 border-b border-gray-100 py-4"
+						data-reveal
+						style={`--reveal-delay:${(i % 4) * 40}ms`}
+					>
+						<span class="mt-2 h-1.5 w-1.5 shrink-0 bg-gray-300" aria-hidden="true" />
+						<span class="text-base leading-snug text-gray-700 text-pretty">{item}</span>
+					</li>
+				))
+			}
+		</ul>
+
+		<div class="col-span-4 md:col-span-8 xl:col-span-5 xl:col-start-12" data-reveal>
+			<p class="label mb-4 text-gray-400">Featured in</p>
+			<ul class="space-y-2">
+				{
+					press.map((item) => (
+						<li>
+							<a
+								href={item.href}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="group inline-flex items-baseline gap-2 text-base text-gray-700 transition-colors hover:text-red"
+							>
+								<span class="border-b border-gray-200 transition-colors group-hover:border-red">
+									{item.label}
+								</span>
+								<span class="text-gray-300" aria-hidden="true">↗</span>
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</div>
+
+	{/* ---------- Skills ---------- */}
+	<SectionHead index="04" title="Skills" class="mb-10 md:mb-14" />
+	<div class="field pb-24 md:pb-32">
+		<div class="col-span-4 md:col-span-8 xl:col-span-16">
+			<ul class="flex flex-wrap gap-x-2 gap-y-3" data-reveal>
+				{
+					mainSkills.map((skill) => (
+						<li class="border border-gray-200 px-3 py-2 text-sm tracking-tight text-gray-700">
+							{skill}
+						</li>
+					))
+				}
+				<li class="border border-gray-200 px-3 py-2 text-sm tracking-tight text-gray-400 line-through decoration-red decoration-2">
+					{lastSkill}
+				</li>
+			</ul>
+			<p class="mt-6 text-sm text-gray-500" data-reveal style="--reveal-delay:40ms">
+				{skillsPunchline}
+			</p>
+		</div>
+	</div>
+
+	{/* ---------- Testimonials ---------- */}
+	<SectionHead index="05" title="What people say" class="mb-10 md:mb-14" />
+	<div class="field gap-y-10 pb-24 md:pb-32">
+		{
+			testimonials.map((item, i) => (
+				<figure
+					class="col-span-4 border-t border-gray-200 pt-5 md:col-span-4 xl:col-span-5"
+					data-reveal
+					style={`--reveal-delay:${(i % 3) * 40}ms`}
+				>
+					<blockquote class="text-base leading-relaxed text-gray-700 text-pretty">
+						{item.quote}
+					</blockquote>
+					<figcaption class="mt-5">
+						<p class="text-sm font-medium tracking-tight">{item.name}</p>
+						<p class="label mt-1 text-gray-400">{item.title}</p>
+					</figcaption>
+				</figure>
+			))
+		}
+	</div>
+
+	{/* ---------- Elsewhere ---------- */}
+	<SectionHead index="06" title="Elsewhere" class="mb-10 md:mb-14" />
+	<div class="field">
+		<ul class="col-span-4 border-t border-ink md:col-span-8 xl:col-span-16">
+			{
+				links.map((link, i) => (
+					<li data-reveal style={`--reveal-delay:${(i % 4) * 40}ms`}>
+						<a
+							href={link.href}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="group flex items-center justify-between border-b border-gray-100 py-5 transition-colors hover:text-red"
+						>
+							<span class="text-base tracking-tight md:text-lg">{link.label}</span>
+							<span
+								class="text-gray-300 transition-transform duration-500 group-hover:translate-x-1 group-hover:text-red"
+								aria-hidden="true"
+							>
+								↗
+							</span>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</Base>

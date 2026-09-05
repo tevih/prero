@@ -1,0 +1,202 @@
+---
+import Base from '../../layouts/Base.astro';
+import { guide, intro, note, disqualifier, tips, outro } from '../../data/guide';
+import type { Block } from '../../data/guide';
+
+const renderable = (blocks: Block[]) => blocks;
+---
+
+<Base
+	title="Supporting MDD"
+	section={`${guide.version} · ${guide.author}`}
+	description="A guide by Gabriel Prero on how to support someone in your life who is struggling with Major Depressive Disorder."
+>
+	{/* ---------- Masthead ---------- */}
+	<section class="field pt-16 pb-16 md:pt-24 md:pb-20">
+		<p class="label col-span-4 mb-8 text-red md:col-span-8 xl:col-span-16" data-reveal>
+			A guide
+		</p>
+		<h1
+			class="col-span-4 text-[clamp(2rem,5.4vw,4.25rem)] leading-[1.06] font-bold tracking-[-0.03em] text-balance md:col-span-8 xl:col-span-13"
+			data-reveal
+			style="--reveal-delay:40ms"
+		>
+			{guide.title}
+		</h1>
+		<p
+			class="col-span-4 mt-8 text-lg leading-relaxed text-gray-600 md:col-span-8 md:text-xl xl:col-span-9"
+			data-reveal
+			style="--reveal-delay:80ms"
+		>
+			{guide.subtitle}
+		</p>
+	</section>
+
+	<div class="field pb-16">
+		<div class="col-span-4 md:col-span-8 xl:col-span-16">
+			<div class="rule-ink origin-left" data-draw></div>
+		</div>
+	</div>
+
+	{/* ---------- Preface ---------- */}
+	<section class="field pb-16">
+		<p class="label col-span-4 mb-8 text-gray-400 md:col-span-8 xl:col-span-3">Preface</p>
+		<div class="col-span-4 md:col-span-8 xl:col-span-10 xl:col-start-5">
+			{
+				renderable(intro).map((block, i) => (
+					<p
+						class:list={[
+							'leading-relaxed text-pretty',
+							i === 1
+								? 'my-8 text-[clamp(1.35rem,3vw,2.1rem)] leading-snug font-medium tracking-tight text-ink'
+								: 'mt-5 text-base text-gray-700 md:text-lg',
+							i === 2 && 'border-l-2 border-gray-200 pl-5 !text-base !text-gray-500',
+						]}
+						data-reveal
+						style={`--reveal-delay:${(i % 4) * 40}ms`}
+					>
+						{block.text}
+					</p>
+				))
+			}
+		</div>
+	</section>
+
+	{/* ---------- Note ---------- */}
+	<section class="field pb-16">
+		<div class="col-span-4 md:col-span-8 xl:col-span-10 xl:col-start-5" data-reveal>
+			<div class="border border-gray-200 bg-gray-050 p-6 md:p-8">
+				<p class="text-base leading-relaxed text-gray-700 text-pretty">{note}</p>
+			</div>
+		</div>
+	</section>
+
+	{/* ---------- Not a disqualifier ---------- */}
+	<section class="field pb-20 md:pb-24">
+		<div class="col-span-4 md:col-span-8 xl:col-span-10 xl:col-start-5">
+			{
+				renderable(disqualifier).map((block, i) =>
+					block.type === 'quote' ? (
+						<p
+							class="my-10 border-t border-b border-ink py-8 text-[clamp(1.6rem,4vw,2.75rem)] leading-[1.1] font-bold tracking-[-0.03em] text-balance"
+							data-reveal
+						>
+							{block.text}
+						</p>
+					) : (
+						<p
+							class="mt-5 text-base leading-relaxed text-gray-700 text-pretty md:text-lg"
+							data-reveal
+							style={`--reveal-delay:${(i % 4) * 40}ms`}
+						>
+							{block.text}
+						</p>
+					),
+				)
+			}
+		</div>
+	</section>
+
+	{/* ---------- Contents ---------- */}
+	<section class="field pb-20 md:pb-24">
+		<p class="label col-span-4 mb-8 text-gray-400 md:col-span-8 xl:col-span-3">Contents</p>
+		<ol class="col-span-4 border-t border-ink md:col-span-8 xl:col-span-10 xl:col-start-5">
+			{
+				tips.map((tip, i) => (
+					<li data-reveal style={`--reveal-delay:${(i % 4) * 40}ms`}>
+						<a
+							href={`#tip-${i + 1}`}
+							class="group grid grid-cols-[3rem_1fr] items-baseline gap-4 border-b border-gray-100 py-4 transition-colors hover:text-red"
+						>
+							<span class="label text-gray-300 transition-colors group-hover:text-red">
+								{String(i + 1).padStart(2, '0')}
+							</span>
+							<span class="text-base leading-snug tracking-tight text-pretty">{tip.title}</span>
+						</a>
+					</li>
+				))
+			}
+		</ol>
+	</section>
+
+	{/* ---------- The tips ---------- */}
+	{
+		tips.map((tip, i) => (
+			<section class="field scroll-mt-24 pb-16 md:pb-20" id={`tip-${i + 1}`}>
+				<div class="col-span-4 md:col-span-8 xl:col-span-3" data-reveal>
+					<div class="rule-ink origin-left" data-draw />
+					<p class="label mt-3 text-red">Tip {String(i + 1).padStart(2, '0')}</p>
+				</div>
+
+				<div class="col-span-4 md:col-span-8 xl:col-span-10 xl:col-start-5">
+					<h2
+						class="text-[clamp(1.5rem,3.4vw,2.35rem)] leading-[1.12] font-bold tracking-[-0.03em] text-balance"
+						data-reveal
+						style="--reveal-delay:40ms"
+					>
+						{tip.title}
+					</h2>
+
+					{tip.blocks.map((block, j) =>
+						block.type === 'list' ? (
+							<ul
+								class="mt-6 space-y-3 border-l-2 border-red/30 pl-5"
+								data-reveal
+								style={`--reveal-delay:${(j % 4) * 40}ms`}
+							>
+								{block.items?.map((item) => (
+									<li class="text-base leading-relaxed text-gray-700 text-pretty md:text-lg">
+										{item}
+									</li>
+								))}
+							</ul>
+						) : (
+							<p
+								class="mt-5 text-base leading-relaxed text-gray-700 text-pretty md:text-lg"
+								data-reveal
+								style={`--reveal-delay:${(j % 4) * 40}ms`}
+							>
+								{block.text}
+							</p>
+						),
+					)}
+				</div>
+			</section>
+		))
+	}
+
+	{/* ---------- Wrapping up ---------- */}
+	<section class="field pt-8 pb-8">
+		<div class="col-span-4 md:col-span-8 xl:col-span-3" data-reveal>
+			<div class="rule-ink origin-left" data-draw></div>
+			<p class="label mt-3 text-gray-500">Wrapping it up</p>
+		</div>
+		<div class="col-span-4 md:col-span-8 xl:col-span-10 xl:col-start-5">
+			{
+				renderable(outro).map((block, i) => (
+					<p
+						class="mt-5 text-base leading-relaxed text-gray-700 text-pretty md:text-lg"
+						data-reveal
+						style={`--reveal-delay:${(i % 4) * 40}ms`}
+					>
+						{block.text}
+					</p>
+				))
+			}
+		</div>
+	</section>
+
+	{/* ---------- Crisis resource ---------- */}
+	<section class="field pt-8">
+		<div class="col-span-4 md:col-span-8 xl:col-span-10 xl:col-start-5" data-reveal>
+			<div class="border-l-2 border-red bg-gray-050 p-6 md:p-8">
+				<p class="label mb-3 text-gray-500">If you need help now</p>
+				<p class="text-base leading-relaxed text-gray-700 text-pretty">
+					In the US, call or text <strong class="font-medium text-ink">988</strong> to reach the
+					Suicide &amp; Crisis Lifeline, available 24 hours a day. If someone is in immediate
+					danger, call 911.
+				</p>
+			</div>
+		</div>
+	</section>
+</Base>

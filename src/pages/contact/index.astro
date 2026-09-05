@@ -1,0 +1,92 @@
+---
+import Base from '../../layouts/Base.astro';
+import { site, contactIntro, contactHours, links } from '../../data/site';
+
+const details = [
+	{ label: 'Email', value: site.email, href: `mailto:${site.email}` },
+	{ label: 'Phone', value: site.phone, href: `tel:${site.phoneHref}` },
+	{ label: 'Address', value: site.location, href: null },
+];
+---
+
+<Base
+	title="Contact"
+	section="Chicago, Illinois"
+	description="Get in touch with Gabriel Prero about product design and development work."
+>
+	<section class="field pt-16 pb-16 md:pt-24 md:pb-24">
+		<h1 class="display col-span-4 text-[clamp(3.25rem,13vw,12rem)] md:col-span-8 xl:col-span-16" data-reveal>
+			Say hello
+		</h1>
+	</section>
+
+	<section class="field pb-20 md:pb-28">
+		<div class="col-span-4 md:col-span-8 xl:col-span-16">
+			<div class="rule-ink origin-left" data-draw></div>
+		</div>
+
+		<p
+			class="col-span-4 pt-10 text-lg leading-relaxed text-gray-700 md:col-span-8 md:text-xl xl:col-span-10 xl:col-start-4"
+			data-reveal
+		>
+			{contactIntro}
+		</p>
+	</section>
+
+	{/* ---------- Details ---------- */}
+	<section class="field pb-20 md:pb-28">
+		<dl class="col-span-4 border-t border-ink md:col-span-8 xl:col-span-16">
+			{
+				details.map((item, i) => (
+					<div
+						class="group grid grid-cols-1 gap-1 border-b border-gray-100 py-6 md:grid-cols-[12rem_1fr] md:items-baseline md:gap-8"
+						data-reveal
+						style={`--reveal-delay:${i * 40}ms`}
+					>
+						<dt class="label text-gray-400">{item.label}</dt>
+						<dd class="text-[clamp(1.25rem,3vw,2rem)] leading-tight font-medium tracking-tight">
+							{item.href ? (
+								<a
+									href={item.href}
+									class="border-b border-transparent transition-colors hover:border-red hover:text-red"
+								>
+									{item.value}
+								</a>
+							) : (
+								item.value
+							)}
+						</dd>
+					</div>
+				))
+			}
+		</dl>
+	</section>
+
+	{/* ---------- Hours ---------- */}
+	<section class="field pb-20 md:pb-28">
+		<div class="col-span-4 md:col-span-8 xl:col-span-6" data-reveal>
+			<p class="label mb-4 text-gray-400">Business hours</p>
+			<p class="text-base leading-relaxed text-gray-700">{contactHours}</p>
+		</div>
+
+		<div class="col-span-4 mt-10 md:col-span-8 xl:col-span-5 xl:col-start-10 xl:mt-0" data-reveal style="--reveal-delay:40ms">
+			<p class="label mb-4 text-gray-400">Elsewhere</p>
+			<ul class="flex flex-wrap gap-x-2 gap-y-2">
+				{
+					links.map((link) => (
+						<li>
+							<a
+								href={link.href}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="label inline-block border border-gray-200 px-3 py-2 text-gray-600 transition-colors hover:border-red hover:text-red"
+							>
+								{link.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</section>
+</Base>

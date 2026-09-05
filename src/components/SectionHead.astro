@@ -1,0 +1,18 @@
+---
+interface Props {
+	index: string;
+	title: string;
+	class?: string;
+}
+const { index, title, class: className } = Astro.props;
+---
+
+<div class:list={['field', className]}>
+	<div class="col-span-4 md:col-span-8 xl:col-span-16">
+		<div class="rule-ink origin-left" data-draw></div>
+		<div class="flex items-baseline gap-6 pt-3">
+			<span class="label text-red">{index}</span>
+			<h2 class="label text-gray-500">{title}</h2>
+		</div>
+	</div>
+</div>

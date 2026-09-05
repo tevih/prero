@@ -1,0 +1,208 @@
+---
+import '../styles/global.css';
+import { site, nav } from '../data/site';
+
+interface Props {
+	title?: string;
+	description?: string;
+	/** Shown in the header's right-hand slot as a section marker. */
+	section?: string;
+}
+
+const {
+	title,
+	description = 'Gabriel Prero — Design + Product Development leader and Industrial Designer in Chicago. 15+ years, 17 patents.',
+	section,
+} = Astro.props;
+
+const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.tagline}`;
+const path = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{pageTitle}</title>
+		<meta name="description" content={description} />
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:type" content="website" />
+		<meta name="theme-color" content="#fafafa" />
+	</head>
+
+	<body class="min-h-screen bg-paper text-ink">
+		<a
+			href="#main"
+			class="label sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
+		>
+			Skip to content
+		</a>
+
+		<header class="sticky top-0 z-40 border-b border-gray-200 bg-paper/92 backdrop-blur-sm">
+			<div class="field h-14 items-center md:h-16">
+				<a
+					href="/"
+					class="col-span-2 flex items-baseline gap-2 md:col-span-3 xl:col-span-4"
+					aria-label={`${site.name} — home`}
+				>
+					<span class="display text-[0.95rem] leading-none md:text-base">Prero</span>
+					<span class="hidden h-2 w-2 shrink-0 bg-red md:block" aria-hidden="true"></span>
+				</a>
+
+				<nav
+					class="col-span-2 hidden justify-end gap-6 md:col-span-5 md:flex xl:col-span-12 xl:gap-10"
+					aria-label="Primary"
+				>
+					{
+						nav.map((item) => {
+							const active = item.href === '/' ? path === '/' : path.startsWith(item.href);
+							return (
+								<a
+									href={item.href}
+									aria-current={active ? 'page' : undefined}
+									class:list={[
+										'label relative py-1 transition-colors',
+										active ? 'text-ink' : 'text-gray-400 hover:text-ink',
+									]}
+								>
+									{item.label}
+									{active && (
+										<span
+											class="absolute -bottom-px left-0 h-px w-full bg-red"
+											aria-hidden="true"
+										/>
+									)}
+								</a>
+							);
+						})
+					}
+				</nav>
+
+				<button
+					type="button"
+					id="menu-toggle"
+					class="label col-span-2 justify-self-end py-1 text-gray-500 md:hidden"
+					aria-expanded="false"
+					aria-controls="menu-panel"
+				>
+					Menu
+				</button>
+			</div>
+
+			<div id="menu-panel" hidden class="border-t border-gray-200 md:hidden">
+				<nav class="field py-2" aria-label="Primary, mobile">
+					<ul class="col-span-4 divide-y divide-gray-100">
+						{
+							nav.map((item) => (
+								<li>
+									<a
+										href={item.href}
+										class="label flex items-center justify-between py-4 text-gray-600"
+									>
+										{item.label}
+										<span class="text-gray-300">→</span>
+									</a>
+								</li>
+							))
+						}
+					</ul>
+				</nav>
+			</div>
+		</header>
+
+		{
+			section && (
+				<div class="field border-b border-gray-100 py-2">
+					<p class="label col-span-4 text-gray-400 md:col-span-8 xl:col-span-16">{section}</p>
+				</div>
+			)
+		}
+
+		<main id="main">
+			<slot />
+		</main>
+
+		<footer class="mt-32 border-t border-ink bg-ink text-paper md:mt-40">
+			<div class="field gap-y-12 py-16 md:py-20">
+				<div class="col-span-4 md:col-span-4 xl:col-span-6">
+					<p class="display text-4xl md:text-5xl">
+						Let’s make<br />stuff better.
+					</p>
+					<a
+						href="/contact/"
+						class="label mt-8 inline-flex items-center gap-3 border-b border-red pb-1 text-paper transition-colors hover:text-red"
+					>
+						Start a conversation
+						<span aria-hidden="true">→</span>
+					</a>
+				</div>
+
+				<div class="col-span-2 md:col-span-2 xl:col-span-3 xl:col-start-9">
+					<p class="label mb-4 text-gray-500">Direct</p>
+					<ul class="space-y-2 text-sm">
+						<li>
+							<a class="text-gray-200 hover:text-paper" href={`mailto:${site.email}`}>{site.email}</a>
+						</li>
+						<li>
+							<a class="text-gray-200 hover:text-paper" href={`tel:${site.phoneHref}`}>{site.phone}</a>
+						</li>
+						<li class="text-gray-400">{site.location}</li>
+					</ul>
+				</div>
+
+				<nav class="col-span-2 md:col-span-2 xl:col-span-3" aria-label="Footer">
+					<p class="label mb-4 text-gray-500">Pages</p>
+					<ul class="space-y-2 text-sm">
+						{
+							nav.map((item) => (
+								<li>
+									<a class="text-gray-200 hover:text-paper" href={item.href}>
+										{item.label}
+									</a>
+								</li>
+							))
+						}
+					</ul>
+				</nav>
+			</div>
+
+			<div class="field border-t border-gray-800 py-6">
+				<p class="label col-span-4 text-gray-500 md:col-span-6 xl:col-span-12">{site.credit}</p>
+			</div>
+		</footer>
+
+		<script>
+			// Mobile menu
+			const toggle = document.getElementById('menu-toggle');
+			const panel = document.getElementById('menu-panel');
+			toggle?.addEventListener('click', () => {
+				const open = toggle.getAttribute('aria-expanded') === 'true';
+				toggle.setAttribute('aria-expanded', String(!open));
+				toggle.textContent = open ? 'Menu' : 'Close';
+				if (panel) panel.hidden = open;
+			});
+
+			// Reveal on scroll — 16px of travel, staggered in 40ms steps.
+			const targets = document.querySelectorAll('[data-reveal], [data-draw]');
+			if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+				const io = new IntersectionObserver(
+					(entries) => {
+						for (const entry of entries) {
+							if (!entry.isIntersecting) continue;
+							entry.target.classList.add('is-in');
+							io.unobserve(entry.target);
+						}
+					},
+					{ rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+				);
+				targets.forEach((el) => io.observe(el));
+			} else {
+				targets.forEach((el) => el.classList.add('is-in'));
+			}
+		</script>
+	</body>
+</html>
