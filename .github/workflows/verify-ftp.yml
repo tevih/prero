@@ -1,0 +1,46 @@
+name: Verify Bluehost connection
+
+# Manual only. Connects, inspects the target directory and checks whether the
+# site is reachable. Uploads nothing.
+on:
+  workflow_dispatch:
+    inputs:
+      write_test:
+        description: 'Also upload and delete a scratch file to prove write access'
+        type: boolean
+        default: false
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      - name: Check the FTP connection
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_REMOTE_DIR: ${{ vars.FTP_REMOTE_DIR }}
+        run: node scripts/check-ftp.mjs ${{ inputs.write_test && '--write' || '' }}
+
+      - name: Check whether the site is reachable
+        if: always()
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          echo "Requesting ${SITE_URL}"
+          code=$(curl -sS -o /tmp/body -w '%{http_code}' --max-time 30 "$SITE_URL" || echo "000")
+          echo "  HTTP ${code}"
+          if [ "$code" = "000" ]; then
+            echo "  Could not connect — DNS points at the host but nothing answered on 80/443."
+          else
+            echo "  --- first 400 bytes ---"
+            head -c 400 /tmp/body || true
+          fi
