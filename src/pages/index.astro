@@ -6,6 +6,7 @@ import ProjectCard from '../components/ProjectCard.astro';
 import headshot from '../assets/headshot.png';
 import { projects } from '../data/work';
 import { site, origin, facts, bio, services } from '../data/site';
+import { url } from '../lib/url';
 
 const featured = projects.slice(0, 6);
 ---
@@ -24,7 +25,7 @@ const featured = projects.slice(0, 6);
 				data-reveal
 				style="--reveal-delay:40ms"
 			>
-				<span class="block">Gabriel</span>
+				<span class="block">Gabriel</span>{' '}
 				<span class="block">Prero</span>
 			</h1>
 		</div>
@@ -133,7 +134,7 @@ const featured = projects.slice(0, 6);
 		>
 			<p class="text-lg leading-relaxed text-gray-700 md:text-xl">{bio[0]}</p>
 			<a
-				href="/bio/"
+				href={url('/bio/')}
 				class="label mt-8 inline-flex items-center gap-3 border-b border-ink pb-1 transition-colors hover:border-red hover:text-red"
 			>
 				Read the full bio
@@ -157,7 +158,7 @@ const featured = projects.slice(0, 6);
 		<div class="col-span-4 mt-4 md:col-span-8 xl:col-span-16">
 			<div class="rule"></div>
 			<a
-				href="/work/"
+				href={url('/work/')}
 				class="label group flex items-center justify-between py-6 transition-colors hover:text-red"
 			>
 				<span>All {projects.length} projects</span>

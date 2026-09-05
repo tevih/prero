@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { Project } from '../data/work';
+import { url } from '../lib/url';
 
 interface Props {
 	project: Project;
@@ -12,30 +13,41 @@ const { project, index, delay = 0 } = Astro.props;
 const num = String(index + 1).padStart(2, '0');
 ---
 
-<article
-	class="group"
-	data-reveal
-	style={`--reveal-delay:${delay}ms`}
->
-	<div class="relative overflow-hidden bg-gray-050">
-		<Image
-			src={project.image}
-			alt={`${project.title} — ${project.client}`}
-			widths={[400, 800, 1200]}
-			sizes="(min-width: 80rem) 30vw, (min-width: 48rem) 45vw, 92vw"
-			class="aspect-[4/3] w-full object-cover grayscale transition-[filter,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03] group-hover:grayscale-0 group-focus-within:grayscale-0"
-			loading={index < 3 ? 'eager' : 'lazy'}
-		/>
-		<span
-			class="pointer-events-none absolute inset-0 border border-ink/0 transition-colors duration-500 group-hover:border-ink/10"
-			aria-hidden="true"></span>
-	</div>
-
-	<div class="mt-4 flex items-baseline gap-4">
-		<span class="label text-gray-300 transition-colors duration-300 group-hover:text-red">{num}</span>
-		<div class="min-w-0">
-			<h3 class="text-base leading-snug font-medium tracking-tight text-balance">{project.title}</h3>
-			<p class="mt-1 text-sm text-gray-500">{project.client}</p>
+<article data-reveal style={`--reveal-delay:${delay}ms`}>
+	<a
+		href={url(`/work/${project.slug}/`)}
+		class="group block focus-visible:outline-none"
+		aria-label={`${project.title} for ${project.client}`}
+	>
+		<div class="relative overflow-hidden bg-gray-050">
+			<Image
+				src={project.image}
+				alt={`${project.title} — ${project.client}`}
+				widths={[400, 800, 1200]}
+				sizes="(min-width: 80rem) 30vw, (min-width: 48rem) 45vw, 92vw"
+				class="aspect-[4/3] w-full object-cover grayscale transition-[filter,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03] group-hover:grayscale-0 group-focus-visible:scale-[1.03] group-focus-visible:grayscale-0"
+				loading={index < 3 ? 'eager' : 'lazy'}
+			/>
+			<span
+				class="pointer-events-none absolute inset-0 border transition-colors duration-500 border-ink/0 group-hover:border-ink/10 group-focus-visible:border-red"
+				aria-hidden="true"></span>
 		</div>
-	</div>
+
+		<div class="mt-4 flex items-baseline gap-4">
+			<span
+				class="label text-gray-300 transition-colors duration-300 group-hover:text-red group-focus-visible:text-red"
+				>{num}</span
+			>
+			<div class="min-w-0">
+				<h3 class="text-base leading-snug font-medium tracking-tight text-balance">
+					{project.title}
+				</h3>
+				<p class="mt-1 text-sm text-gray-500">{project.client}</p>
+			</div>
+			<span
+				class="label ml-auto shrink-0 self-center text-gray-200 transition-all duration-500 group-hover:translate-x-1 group-hover:text-red group-focus-visible:text-red"
+				aria-hidden="true">→</span
+			>
+		</div>
+	</a>
 </article>

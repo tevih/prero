@@ -19,6 +19,7 @@ import tricorbraun from '../assets/work/tricorbraun.jpg';
 import wayfinders from '../assets/work/wayfinders.jpg';
 
 export interface Project {
+	slug: string;
 	title: string;
 	client: string;
 	image: ImageMetadata;
@@ -26,21 +27,41 @@ export interface Project {
 }
 
 export const projects: Project[] = [
-	{ title: 'Closets By Liberty', client: 'Liberty Hardware', image: closetsByLiberty, discipline: 'Home storage' },
-	{ title: 'Cabinet Hardware for The Home Depot', client: 'Liberty Hardware', image: cabinetHardware, discipline: 'Hardware' },
-	{ title: 'Bath Storage', client: 'HPI', image: bathStorage, discipline: 'Home organization' },
-	{ title: 'Off the Wall', client: 'HPI', image: offTheWall, discipline: 'Home organization' },
-	{ title: 'Project 62 Hook for Target', client: 'Liberty Hardware', image: project62Hook, discipline: 'Hardware' },
-	{ title: 'Durabilt Ironing Board', client: 'HPI', image: durabilt, discipline: 'Metal forming' },
-	{ title: 'Dryer Sheet Management', client: 'HPI', image: dryerSheet, discipline: 'Injection molding' },
-	{ title: 'Theta', client: 'Cephius LLC', image: theta, discipline: 'Product design' },
-	{ title: 'The Loop', client: 'Loft 312 Inc.', image: theLoop, discipline: 'Furniture' },
-	{ title: 'TricorBraun Design', client: 'TricorBraun', image: tricorbraun, discipline: 'Packaging' },
-	{ title: 'Menorahs', client: 'tag', image: menorahs, discipline: 'Home décor' },
-	{ title: 'Swingline', client: 'ACCO Brands', image: swingline, discipline: 'Office supply' },
-	{ title: 'Home Décor', client: 'tag', image: homeDecor, discipline: 'Ceramics' },
-	{ title: 'Bamboocell', client: 'Concept', image: bamboocell, discipline: 'Sustainable design' },
-	{ title: 'A+A Wayfinders', client: 'UIC', image: wayfinders, discipline: 'Environmental' },
-	{ title: 'TFG Rebrand', client: 'TFG', image: tfgRebrand, discipline: 'Brand + product' },
-	{ title: 'Otto-Bench', client: 'Life Fitness', image: ottoBench, discipline: 'Furniture' },
+	{ slug: 'closets-by-liberty', title: 'Closets By Liberty', client: 'Liberty Hardware', image: closetsByLiberty, discipline: 'Home storage' },
+	{ slug: 'cabinet-hardware', title: 'Cabinet Hardware for The Home Depot', client: 'Liberty Hardware', image: cabinetHardware, discipline: 'Hardware' },
+	{ slug: 'bath-storage', title: 'Bath Storage', client: 'HPI', image: bathStorage, discipline: 'Home organization' },
+	{ slug: 'off-the-wall', title: 'Off the Wall', client: 'HPI', image: offTheWall, discipline: 'Home organization' },
+	{ slug: 'project-62-hook', title: 'Project 62 Hook for Target', client: 'Liberty Hardware', image: project62Hook, discipline: 'Hardware' },
+	{ slug: 'durabilt', title: 'Durabilt Ironing Board', client: 'HPI', image: durabilt, discipline: 'Metal forming' },
+	{ slug: 'dryer-sheet', title: 'Dryer Sheet Management', client: 'HPI', image: dryerSheet, discipline: 'Injection molding' },
+	{ slug: 'theta', title: 'Theta', client: 'Cephius LLC', image: theta, discipline: 'Product design' },
+	{ slug: 'the-loop', title: 'The Loop', client: 'Loft 312 Inc.', image: theLoop, discipline: 'Furniture' },
+	{ slug: 'tricorbraun', title: 'TricorBraun Design', client: 'TricorBraun', image: tricorbraun, discipline: 'Packaging' },
+	{ slug: 'menorahs', title: 'Menorahs', client: 'tag', image: menorahs, discipline: 'Home décor' },
+	{ slug: 'swingline', title: 'Swingline', client: 'ACCO Brands', image: swingline, discipline: 'Office supply' },
+	{ slug: 'home-decor', title: 'Home Décor', client: 'tag', image: homeDecor, discipline: 'Ceramics' },
+	{ slug: 'bamboocell', title: 'Bamboocell', client: 'Concept', image: bamboocell, discipline: 'Sustainable design' },
+	{ slug: 'wayfinders', title: 'A+A Wayfinders', client: 'UIC', image: wayfinders, discipline: 'Environmental' },
+	{ slug: 'tfg-rebrand', title: 'TFG Rebrand', client: 'TFG', image: tfgRebrand, discipline: 'Brand + product' },
+	{ slug: 'otto-bench', title: 'Otto-Bench', client: 'Life Fitness', image: ottoBench, discipline: 'Furniture' },
 ];
+
+/** Gallery images per project, resolved from src/assets/projects/<slug>/NN.(jpg|png). */
+const galleryFiles = import.meta.glob<{ default: ImageMetadata }>(
+	'../assets/projects/**/*.{jpg,png}',
+	{ eager: true },
+);
+
+// import.meta.glob gives no ordering guarantee, so sort on the zero-padded filenames.
+const galleries = new Map<string, ImageMetadata[]>();
+for (const [path, mod] of Object.entries(galleryFiles).sort(([a], [b]) => a.localeCompare(b))) {
+	const slug = path.split('/').at(-2)!;
+	const images = galleries.get(slug) ?? [];
+	images.push(mod.default);
+	galleries.set(slug, images);
+}
+
+export const galleryFor = (slug: string): ImageMetadata[] => galleries.get(slug) ?? [];
+
+export const projectBySlug = (slug: string): Project | undefined =>
+	projects.find((p) => p.slug === slug);

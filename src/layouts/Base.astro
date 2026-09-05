@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { site, nav } from '../data/site';
+import { url } from '../lib/url';
 
 interface Props {
 	title?: string;
@@ -16,7 +17,10 @@ const {
 } = Astro.props;
 
 const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.tagline}`;
-const path = Astro.url.pathname;
+// Astro.url.pathname carries the deploy base; strip it so the nav hrefs
+// (which are base-less) can be compared against it.
+const basePrefix = import.meta.env.BASE_URL.replace(/\/$/, '');
+const path = Astro.url.pathname.slice(basePrefix.length) || '/';
 ---
 
 <!doctype html>
@@ -24,7 +28,7 @@ const path = Astro.url.pathname;
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{pageTitle}</title>
 		<meta name="description" content={description} />
@@ -45,7 +49,7 @@ const path = Astro.url.pathname;
 		<header class="sticky top-0 z-40 border-b border-gray-200 bg-paper/92 backdrop-blur-sm">
 			<div class="field h-14 items-center md:h-16">
 				<a
-					href="/"
+					href={url('/')}
 					class="col-span-2 flex items-baseline gap-2 md:col-span-3 xl:col-span-4"
 					aria-label={`${site.name} — home`}
 				>
@@ -62,7 +66,7 @@ const path = Astro.url.pathname;
 							const active = item.href === '/' ? path === '/' : path.startsWith(item.href);
 							return (
 								<a
-									href={item.href}
+									href={url(item.href)}
 									aria-current={active ? 'page' : undefined}
 									class:list={[
 										'label relative py-1 transition-colors',
@@ -100,7 +104,7 @@ const path = Astro.url.pathname;
 							nav.map((item) => (
 								<li>
 									<a
-										href={item.href}
+										href={url(item.href)}
 										class="label flex items-center justify-between py-4 text-gray-600"
 									>
 										{item.label}
@@ -133,7 +137,7 @@ const path = Astro.url.pathname;
 						Let’s make<br />stuff better.
 					</p>
 					<a
-						href="/contact/"
+						href={url('/contact/')}
 						class="label mt-8 inline-flex items-center gap-3 border-b border-red pb-1 text-paper transition-colors hover:text-red"
 					>
 						Start a conversation
@@ -160,7 +164,7 @@ const path = Astro.url.pathname;
 						{
 							nav.map((item) => (
 								<li>
-									<a class="text-gray-200 hover:text-paper" href={item.href}>
+									<a class="text-gray-200 hover:text-paper" href={url(item.href)}>
 										{item.label}
 									</a>
 								</li>

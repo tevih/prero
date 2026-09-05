@@ -1,0 +1,199 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import { projects, galleryFor } from '../../data/work';
+import { descriptions, projectSites } from '../../data/descriptions';
+import { url } from '../../lib/url';
+
+export function getStaticPaths() {
+	return projects.map((project, index) => ({
+		params: { slug: project.slug },
+		props: { project, index },
+	}));
+}
+
+const { project, index } = Astro.props;
+const gallery = galleryFor(project.slug);
+const body = descriptions[project.slug] ?? [];
+const liveSite = projectSites[project.slug];
+const lede = body.find((b) => b.type === 'p')?.text ?? '';
+
+const num = String(index + 1).padStart(2, '0');
+const prev = projects[(index - 1 + projects.length) % projects.length];
+const next = projects[(index + 1) % projects.length];
+---
+
+<Base
+	title={project.title}
+	section={`${num} / ${String(projects.length).padStart(2, '0')} — ${project.client}`}
+	description={`${project.title} for ${project.client}. ${lede.slice(0, 150)}`}
+>
+	{/* ---------- Masthead ---------- */}
+	<section class="field pt-12 pb-12 md:pt-16 md:pb-16">
+		<div class="col-span-4 md:col-span-8 xl:col-span-16">
+			<a
+				href={url('/work/')}
+				class="label group inline-flex items-center gap-3 text-gray-400 transition-colors hover:text-red"
+			>
+				<span class="transition-transform duration-500 group-hover:-translate-x-1" aria-hidden="true">
+					←
+				</span>
+				All work
+			</a>
+		</div>
+
+		<div class="col-span-4 mt-8 md:col-span-8 xl:col-span-16">
+			<div class="rule-ink origin-left" data-draw></div>
+			<div class="flex items-baseline gap-6 pt-3">
+				<span class="label text-red">{num}</span>
+				<span class="label text-gray-500">{project.client}</span>
+			</div>
+		</div>
+
+		<h1
+			class="display col-span-4 mt-8 text-[clamp(2.5rem,8vw,7rem)] md:col-span-8 xl:col-span-13"
+			data-reveal
+		>
+			{project.title}
+		</h1>
+	</section>
+
+	{/* ---------- Lead image ---------- */}
+	<section class="field pb-16 md:pb-20">
+		<div class="col-span-4 md:col-span-8 xl:col-span-16" data-reveal style="--reveal-delay:40ms">
+			<Image
+				src={project.image}
+				alt={`${project.title} for ${project.client}`}
+				widths={[600, 1200, 1800]}
+				sizes="(min-width: 80rem) 88vw, 92vw"
+				class="w-full bg-gray-050 object-cover"
+				loading="eager"
+			/>
+		</div>
+	</section>
+
+	{/* ---------- Facts + narrative ---------- */}
+	<section class="field gap-y-10 pb-16 md:pb-24">
+		<dl class="col-span-4 md:col-span-8 xl:col-span-4">
+			<div class="border-t border-ink pt-3" data-reveal>
+				<dt class="label text-gray-400">Client</dt>
+				<dd class="mt-2 text-base tracking-tight">{project.client}</dd>
+			</div>
+			<div class="mt-6 border-t border-gray-200 pt-3" data-reveal style="--reveal-delay:40ms">
+				<dt class="label text-gray-400">Discipline</dt>
+				<dd class="mt-2 text-base tracking-tight">{project.discipline}</dd>
+			</div>
+			<div class="mt-6 border-t border-gray-200 pt-3" data-reveal style="--reveal-delay:80ms">
+				<dt class="label text-gray-400">Plates</dt>
+				<dd class="mt-2 text-base tracking-tight">{gallery.length}</dd>
+			</div>
+		</dl>
+
+		<div class="prose-swiss col-span-4 md:col-span-8 xl:col-span-10 xl:col-start-6">
+			{
+				body.map((block, i) =>
+					block.type === 'list' ? (
+						<ol
+							class="mt-6 space-y-4 border-l-2 border-red/30 pl-5"
+							data-reveal
+							style={`--reveal-delay:${(i % 4) * 40}ms`}
+						>
+							{block.items?.map((item) => (
+								<li class="text-base leading-relaxed text-gray-700 text-pretty md:text-lg">
+									{item}
+								</li>
+							))}
+						</ol>
+					) : (
+						<p
+							class:list={[
+								'leading-relaxed text-pretty',
+								i === 0
+									? 'text-[clamp(1.15rem,2.4vw,1.6rem)] leading-snug font-medium tracking-tight text-ink'
+									: 'mt-5 text-base text-gray-700 md:text-lg',
+							]}
+							data-reveal
+							style={`--reveal-delay:${(i % 4) * 40}ms`}
+						>
+							{block.text}
+						</p>
+					),
+				)
+			}
+
+			{
+				liveSite && (
+					<a
+						href={liveSite}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="label group mt-8 inline-flex items-center gap-3 border-b border-ink pb-1 transition-colors hover:border-red hover:text-red"
+					>
+						Visit the product site
+						<span class="transition-transform duration-500 group-hover:translate-x-1" aria-hidden="true">
+							↗
+						</span>
+					</a>
+				)
+			}
+		</div>
+	</section>
+
+	{/* ---------- Gallery ---------- */}
+	{
+		gallery.length > 0 && (
+			<section class="field gap-y-10 pb-20 md:gap-y-14 md:pb-28">
+				<div class="col-span-4 md:col-span-8 xl:col-span-16">
+					<div class="rule-ink origin-left" data-draw />
+					<p class="label pt-3 text-gray-500">Plates</p>
+				</div>
+
+				{gallery.map((image, i) => (
+					<figure
+						class:list={[
+							'col-span-4 md:col-span-8',
+							// A loose two-up rhythm: every third plate runs full width.
+							i % 3 === 0 ? 'xl:col-span-16' : 'xl:col-span-8',
+						]}
+						data-reveal
+						style={`--reveal-delay:${(i % 3) * 40}ms`}
+					>
+						<Image
+							src={image}
+							alt={`${project.title} — plate ${String(i + 1).padStart(2, '0')}`}
+							widths={[600, 1200, 1800]}
+							sizes={i % 3 === 0 ? '(min-width: 80rem) 88vw, 92vw' : '(min-width: 80rem) 44vw, 92vw'}
+							class="w-full bg-gray-050 object-cover"
+							loading="lazy"
+						/>
+						<figcaption class="label mt-3 text-gray-300">
+							{String(i + 1).padStart(2, '0')} / {String(gallery.length).padStart(2, '0')}
+						</figcaption>
+					</figure>
+				))}
+			</section>
+		)
+	}
+
+	{/* ---------- Prev / next ---------- */}
+	<nav class="field border-t border-ink pt-6" aria-label="Project navigation">
+		<a
+			href={url(`/work/${prev.slug}/`)}
+			class="group col-span-2 md:col-span-4 xl:col-span-8"
+		>
+			<span class="label text-gray-400 transition-colors group-hover:text-red">← Previous</span>
+			<p class="mt-2 text-base leading-snug tracking-tight text-pretty transition-colors group-hover:text-red md:text-lg">
+				{prev.title}
+			</p>
+		</a>
+		<a
+			href={url(`/work/${next.slug}/`)}
+			class="group col-span-2 text-right md:col-span-4 xl:col-span-8"
+		>
+			<span class="label text-gray-400 transition-colors group-hover:text-red">Next →</span>
+			<p class="mt-2 text-base leading-snug tracking-tight text-pretty transition-colors group-hover:text-red md:text-lg">
+				{next.title}
+			</p>
+		</a>
+	</nav>
+</Base>
