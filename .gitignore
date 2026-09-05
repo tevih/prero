@@ -31,3 +31,6 @@ pnpm-debug.log*
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# local deploy credentials
+.env.deploy

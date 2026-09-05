@@ -44,6 +44,8 @@ nvm use
 | `npm run test:unit` | Content and data checks (fast, no build) |
 | `npm run test:build` | Assertions against the built HTML |
 | `npm run test:e2e` | Playwright, Chromium + WebKit |
+| `npm run deploy:check` | Build, verify, then dry-run the Bluehost upload |
+| `npm run deploy:live` | Build, verify, then upload to Bluehost |
 
 First e2e run needs browsers: `npx playwright install chromium webkit`.
 
@@ -119,6 +121,25 @@ subdirectory (`/public_html/staging/`) to try it out first.
 indexes, the 404 document, immutable caching for fingerprinted assets,
 revalidation for HTML, and compression. The HTTPS redirect in it is commented
 out — uncomment it once cPanel has issued the certificate.
+
+### Testing the deploy without CI
+
+`scripts/deploy-bluehost.sh` runs the same steps as the Bluehost job, using the
+same sync engine the GitHub Action wraps (`@samkirkland/ftp-deploy`), so a local
+run and a CI run behave identically and share one remote state file.
+
+```bash
+cp .env.deploy.example .env.deploy   # gitignored; fill in your FTP details
+npm run deploy:check                 # build, test, then dry run
+npm run deploy:live                  # same, but actually uploads
+```
+
+`deploy:check` connects and authenticates for real, then prints exactly which
+files it *would* add, change or delete — without writing anything. It is the
+fastest way to confirm the server name, credentials and `FTP_REMOTE_DIR` are
+right before letting CI near the domain.
+
+Set `FTP_LOG_LEVEL=verbose` in `.env.deploy` to see every FTP command.
 
 ## Structure
 
