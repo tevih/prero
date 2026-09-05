@@ -44,6 +44,7 @@ nvm use
 | `npm run test:unit` | Content and data checks (fast, no build) |
 | `npm run test:build` | Assertions against the built HTML |
 | `npm run test:e2e` | Playwright, Chromium + WebKit |
+| `npm run deploy:verify` | Check the FTP connection only — no build, no upload |
 | `npm run deploy:check` | Build, verify, then dry-run the Bluehost upload |
 | `npm run deploy:live` | Build, verify, then upload to Bluehost |
 
@@ -134,10 +135,22 @@ npm run deploy:check                 # build, test, then dry run
 npm run deploy:live                  # same, but actually uploads
 ```
 
-`deploy:check` connects and authenticates for real, then prints exactly which
-files it *would* add, change or delete — without writing anything. It is the
-fastest way to confirm the server name, credentials and `FTP_REMOTE_DIR` are
-right before letting CI near the domain.
+To check only the connection, without building or diffing anything:
+
+```bash
+npm run deploy:verify            # resolve, connect, TLS, log in, list the target
+npm run deploy:verify -- --write # also upload and delete a scratch file
+```
+
+It reports each step in order, so a failure names the thing that broke —
+hostname, port, TLS, credentials, or a `FTP_REMOTE_DIR` that does not exist. It
+also lists what is already in the target directory and warns if a deploy would
+overwrite an `.htaccess` or a WordPress install.
+
+`deploy:check` goes further: it builds, runs the build tests, then connects and
+prints exactly which files it *would* add, change or delete — without writing
+anything. It is the fastest way to confirm the whole pipeline is right before
+letting CI near the domain.
 
 Set `FTP_LOG_LEVEL=verbose` in `.env.deploy` to see every FTP command.
 
