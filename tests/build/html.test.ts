@@ -349,3 +349,33 @@ describe('project detail pages', () => {
 		}
 	});
 });
+
+describe('shared hosting artifacts', () => {
+	it('ships a 404 page with working navigation', () => {
+		const file = join(DIST, '404.html');
+		expect(existsSync(file), 'dist/404.html').toBe(true);
+
+		const doc = parseHTML(readFileSync(file, 'utf8')).document;
+		expect(doc.querySelectorAll('h1')).toHaveLength(1);
+		expect(doc.querySelector('title')?.textContent).toContain('Gabriel Prero');
+
+		// Apache serves this from any depth, so its links must resolve absolutely.
+		const links = [...doc.querySelectorAll('a[href^="/"]')].map((a) =>
+			toRoute(a.getAttribute('href')!),
+		);
+		for (const route of PAGE_ROUTES) {
+			expect(links, `404 links to ${route}`).toContain(route);
+		}
+	});
+
+	it('ships an .htaccess that Apache can use', () => {
+		const file = join(DIST, '.htaccess');
+		expect(existsSync(file), 'dist/.htaccess — public/ dotfiles must be copied').toBe(true);
+
+		const conf = readFileSync(file, 'utf8');
+		expect(conf, 'directory index').toContain('DirectoryIndex index.html');
+		expect(conf, 'error document').toContain('ErrorDocument 404 /404.html');
+		expect(conf, 'immutable asset caching').toMatch(/max-age=31536000, immutable/);
+		expect(conf, 'html must revalidate').toMatch(/max-age=0, must-revalidate/);
+	});
+});

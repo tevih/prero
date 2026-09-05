@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/url';
+import { nav } from '../data/site';
+---
+
+<Base
+	title="Page not found"
+	section="Error 404"
+	description="That page does not exist."
+>
+	<section class="field pt-16 pb-24 md:pt-24 md:pb-32">
+		<p class="label col-span-4 mb-8 text-red md:col-span-8 xl:col-span-16">404</p>
+
+		<h1 class="display col-span-4 text-[clamp(2.75rem,11vw,10rem)] md:col-span-8 xl:col-span-13">
+			Nothing here.
+		</h1>
+
+		<div class="col-span-4 mt-12 md:col-span-8 xl:col-span-16">
+			<div class="rule-ink origin-left" data-draw></div>
+		</div>
+
+		<p
+			class="col-span-4 mt-6 text-lg leading-relaxed text-gray-600 md:col-span-8 xl:col-span-8"
+			data-reveal
+		>
+			The page you asked for has moved or never existed. Everything else is below.
+		</p>
+
+		<ul class="col-span-4 mt-10 md:col-span-8 xl:col-span-8">
+			{
+				nav.map((item, i) => (
+					<li data-reveal style={`--reveal-delay:${i * 40}ms`}>
+						<a
+							href={url(item.href)}
+							class="group flex items-center justify-between border-b border-gray-100 py-4 transition-colors hover:text-red"
+						>
+							<span class="text-base tracking-tight md:text-lg">{item.label}</span>
+							<span
+								class="text-gray-300 transition-transform duration-500 group-hover:translate-x-1"
+								aria-hidden="true"
+							>
+								→
+							</span>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</section>
+</Base>

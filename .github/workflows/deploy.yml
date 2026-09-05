@@ -69,3 +69,53 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v5
+
+  bluehost:
+    name: Deploy to Bluehost
+    needs: test
+    # Set the repository variable DEPLOY_BLUEHOST to "true" to switch this on.
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request' &&
+      vars.DEPLOY_BLUEHOST == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Bluehost serves the site from the domain root, not a /<repo>/ subpath,
+      # so this is a different build from the one Pages gets.
+      - name: Build for the domain root
+        env:
+          SITE: ${{ vars.SITE_URL }}
+          BASE_PATH: /
+        run: npm run build
+
+      - name: Verify the root-base build
+        env:
+          BASE_PATH: /
+        run: npx vitest run tests/build
+
+      - name: Upload to Bluehost over FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./dist/
+          server-dir: ${{ vars.FTP_REMOTE_DIR }}
+          # These filter what is uploaded from dist/, not what exists on the
+          # server. The action tracks its own manifest and leaves files it did
+          # not upload alone, so anything already in public_html survives.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**

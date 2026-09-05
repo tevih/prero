@@ -66,12 +66,59 @@ First e2e run needs browsers: `npx playwright install chromium webkit`.
 
 ## Deployment
 
-Pushes to `main` run the full suite and, if it passes, publish to GitHub Pages
-via `.github/workflows/deploy.yml`.
+`.github/workflows/deploy.yml` runs the full suite on every push to `main` and,
+if it passes, publishes to two targets:
 
-Pages serves the site from a subpath, so `astro.config.mjs` sets
-`base: '/prero'` and every internal link goes through `src/lib/url.ts`. For a
-custom domain, build with `SITE=https://example.com BASE_PATH=/`.
+| Target | URL | Base path |
+| --- | --- | --- |
+| GitHub Pages (staging) | `https://tevih.github.io/prero/` | `/prero` |
+| Bluehost (production) | the live domain | `/` |
+
+Pages serves from a subpath, so `astro.config.mjs` defaults to `base: '/prero'`
+and every internal link goes through `src/lib/url.ts`. The Bluehost job rebuilds
+with `BASE_PATH=/` and re-runs the build tests against that output before
+uploading, so a base-path regression cannot reach production.
+
+### Bluehost setup
+
+The Bluehost job is skipped until the repository variable `DEPLOY_BLUEHOST` is
+`true`.
+
+**1. Create an FTP account** in cPanel → *Files* → *FTP Accounts*. Point its
+directory at the document root you are deploying to.
+
+**2. Add these to the repo** (Settings → Secrets and variables → Actions):
+
+| Name | Kind | Example |
+| --- | --- | --- |
+| `FTP_SERVER` | secret | `ftp.example.com` |
+| `FTP_USERNAME` | secret | `deploy@example.com` |
+| `FTP_PASSWORD` | secret | the FTP account password |
+| `FTP_REMOTE_DIR` | variable | `/public_html/` — trailing slash required |
+| `SITE_URL` | variable | `https://example.com` |
+| `DEPLOY_BLUEHOST` | variable | `true` |
+
+Or from the CLI:
+
+```bash
+gh secret set FTP_SERVER
+gh variable set FTP_REMOTE_DIR --body "/public_html/"
+gh variable set SITE_URL --body "https://example.com"
+gh variable set DEPLOY_BLUEHOST --body "true"
+```
+
+**3. Push to `main`.** The first upload sends every file; later runs send only
+what changed, tracked by a `.ftp-deploy-sync-state.json` the action keeps in the
+remote directory.
+
+The deploy only uploads — it never deletes files it did not put there, so an
+existing site in `public_html` is left alone. Point `FTP_REMOTE_DIR` at a
+subdirectory (`/public_html/staging/`) to try it out first.
+
+`public/.htaccess` ships with the build and configures Apache: directory
+indexes, the 404 document, immutable caching for fingerprinted assets,
+revalidation for HTML, and compression. The HTTPS redirect in it is commented
+out — uncomment it once cPanel has issued the certificate.
 
 ## Structure
 
@@ -81,6 +128,9 @@ src/
   components/      SectionHead, ProjectCard
   data/            site.ts, work.ts, guide.ts — all page content
   layouts/Base.astro
-  pages/           index, work, bio, contact, supporting-mdd
+  lib/url.ts       Base-path-aware internal links
+  pages/           index, work (+ 17 projects), bio, contact, supporting-mdd, 404
   styles/global.css  Design tokens, grid, motion
+public/.htaccess   Apache config, used by Bluehost only
+scripts/           Foreground static server for e2e
 ```
