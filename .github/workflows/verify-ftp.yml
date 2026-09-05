@@ -41,13 +41,40 @@ jobs:
         if: always()
         env:
           SITE_URL: ${{ vars.SITE_URL }}
+          ORIGIN_IP: ${{ vars.ORIGIN_IP }}
         run: |
-          echo "Requesting ${SITE_URL}"
-          code=$(curl -sS -o /tmp/body -w '%{http_code}' --max-time 30 "$SITE_URL" || echo "000")
+          host=$(echo "$SITE_URL" | sed -E 's#^https?://##; s#/.*##')
+
+          echo "== What DNS says =="
+          getent hosts "$host" || echo "  (does not resolve)"
+
+          echo
+          echo "== Over current DNS: ${SITE_URL} =="
+          code=$(curl -sS -o /tmp/body -w '%{http_code}' --max-time 25 "$SITE_URL" || echo "000")
           echo "  HTTP ${code}"
           if [ "$code" = "000" ]; then
-            echo "  Could not connect — DNS points at the host but nothing answered on 80/443."
+            echo "  nothing answered on 80/443 at the address DNS points to"
           else
-            echo "  --- first 400 bytes ---"
-            head -c 400 /tmp/body || true
+            grep -o '<title>[^<]*</title>' /tmp/body | head -1 | sed 's/^/  /'
+          fi
+
+          # Ask the server the files actually live on to serve the site,
+          # bypassing DNS. This proves Apache is right before the domain moves.
+          if [ -n "${ORIGIN_IP:-}" ]; then
+            echo
+            echo "== Direct to origin ${ORIGIN_IP} with Host: ${host} =="
+            for scheme in http https; do
+              extra=""
+              [ "$scheme" = "https" ] && extra="-k --resolve ${host}:443:${ORIGIN_IP}"
+              if [ "$scheme" = "https" ]; then
+                c=$(curl -sS $extra -o /tmp/o -w '%{http_code}' --max-time 25 "https://${host}/" || echo "000")
+              else
+                c=$(curl -sS -H "Host: ${host}" -o /tmp/o -w '%{http_code}' --max-time 25 "http://${ORIGIN_IP}/" || echo "000")
+              fi
+              echo "  ${scheme} -> ${c}"
+              [ "$c" = "200" ] && grep -o '<title>[^<]*</title>' /tmp/o | head -1 | sed 's/^/      /'
+            done
+          else
+            echo
+            echo "  (set the ORIGIN_IP variable to test the origin server directly)"
           fi
