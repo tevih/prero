@@ -74,6 +74,27 @@ jobs:
               echo "  ${scheme} -> ${c}"
               [ "$c" = "200" ] && grep -o '<title>[^<]*</title>' /tmp/o | head -1 | sed 's/^/      /'
             done
+
+            echo
+            echo "== Routes on the origin =="
+            for path in / /work/ /work/otto-bench/ /bio/ /contact/ /supporting-mdd/ /favicon.svg /does-not-exist/; do
+              c=$(curl -sS -k --resolve "${host}:443:${ORIGIN_IP}" -o /tmp/r -w '%{http_code}' \
+                    --max-time 20 "https://${host}${path}" || echo "000")
+              t=$(grep -o '<title>[^<]*</title>' /tmp/r 2>/dev/null | head -1 | sed 's/<[^>]*>//g')
+              printf '  %-24s %s  %s\n' "$path" "$c" "$t"
+            done
+
+            echo
+            echo "== Caching headers (from .htaccess) =="
+            curl -sSI -k --resolve "${host}:443:${ORIGIN_IP}" --max-time 20 "https://${host}/" \
+              | grep -iE '^(cache-control|x-content-type-options|referrer-policy)' | sed 's/^/  /'
+            asset=$(curl -sS -k --resolve "${host}:443:${ORIGIN_IP}" --max-time 20 "https://${host}/" \
+              | grep -oE '/_astro/[^"]+\.css' | head -1)
+            if [ -n "$asset" ]; then
+              echo "  asset ${asset}:"
+              curl -sSI -k --resolve "${host}:443:${ORIGIN_IP}" --max-time 20 "https://${host}${asset}" \
+                | grep -iE '^cache-control' | sed 's/^/    /'
+            fi
           else
             echo
             echo "  (set the ORIGIN_IP variable to test the origin server directly)"
