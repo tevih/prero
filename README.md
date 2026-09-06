@@ -53,8 +53,7 @@ publishes to the staging address within about two minutes:
 
 **https://tevih.github.io/prero/**
 
-Publishing to **prero.com** is switched off for now, pending the decision about
-the old site. When it is switched on, the same push updates both.
+The same push also publishes to **prero.com**, about a minute later.
 
 ## If something goes wrong
 

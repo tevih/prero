@@ -110,7 +110,8 @@ already on the repo, so nobody handles credentials. It:
    headers.
 
 Inputs: `write_test` uploads and removes a scratch file to prove write
-access; `full_list` prints every item in the target directory.
+access; `full_list` prints every item in the target directory; `paths` is
+a space-separated list of extra paths to probe on the origin.
 
 Or from a terminal with `gh workflow run "Verify Bluehost connection"`.
 
@@ -128,22 +129,22 @@ Same engine as CI, same remote state file. **Bluehost blocks some networks
 entirely** — if `deploy:verify` cannot even resolve or connect while the CI
 workflow succeeds, that is why. Use the CI workflow.
 
-## Current state of production — read before enabling
+## Current state of production
 
 As of 2026‑09‑06:
 
-- **`DEPLOY_BLUEHOST` is `false`.** Pushes to `main` deploy to Pages only.
-- The site **has been uploaded** to the Bluehost server at `ORIGIN_IP`
-  (50.87.218.83) and serves correctly there — every route 200, the 404 works,
-  cache headers apply. Verified via the origin check.
-- **`prero.com` DNS points elsewhere** (66.147.242.89), where nothing answers.
-  The A record for `prero.com` and `www` needs to move to 50.87.218.83.
-- The FTP root on that server **also holds a WordPress install** — the
-  previous site. The first deploy overwrote its `.htaccess`; the WordPress
-  PHP files are untouched. Bluehost's own backups of the original `.htaccess`
-  (`.htaccess.ea4bak`, `.htaccess.nfd-backup`, `.htaccess.phpupgrader.*`) are
-  still in that directory.
-- Decision pending from the client: archive the WordPress install and take
-  the root, or restore its `.htaccess` and deploy the static site elsewhere.
+- **`DEPLOY_BLUEHOST` is `true`.** Every push to `main` that passes the tests
+  deploys to both Pages and Bluehost, and is recorded as a release.
+- The static site owns the web root on the Bluehost server (`ORIGIN_IP`).
+  Every route serves, the 404 works, cache headers apply.
+- **The previous WordPress site was archived by the client** into `wpbakup/`
+  inside the same web root, with a database export taken in cPanel. The
+  deploy never touches that folder. Because it sits inside the web root, the
+  old install is still reachable over the web unless access to that folder is
+  denied — see the note in the verify output, and prefer moving it above the
+  web root in cPanel if it is to be kept long-term.
+- If `prero.com` still resolves to the old server (66.147.242.89) for you,
+  DNS has not finished moving; the origin can be checked directly with the
+  verify workflow regardless.
 
-Do not set `DEPLOY_BLUEHOST` back to `true` until that decision is made.
+Turning production off again is one command: `gh variable set DEPLOY_BLUEHOST --body false`.

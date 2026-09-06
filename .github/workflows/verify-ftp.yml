@@ -13,6 +13,10 @@ on:
         description: 'Print every item in the target directory'
         type: boolean
         default: false
+      paths:
+        description: 'Extra paths to probe on the origin, space-separated (e.g. /old/ /old/wp-login.php)'
+        required: false
+        default: ''
 
 jobs:
   verify:
@@ -42,6 +46,7 @@ jobs:
         env:
           SITE_URL: ${{ vars.SITE_URL }}
           ORIGIN_IP: ${{ secrets.ORIGIN_IP }}
+          EXTRA_PATHS: ${{ inputs.paths }}
         run: |
           host=$(echo "$SITE_URL" | sed -E 's#^https?://##; s#/.*##')
 
@@ -77,7 +82,7 @@ jobs:
 
             echo
             echo "== Routes on the origin =="
-            for path in / /work/ /work/otto-bench/ /bio/ /contact/ /supporting-mdd/ /favicon.svg /does-not-exist/; do
+            for path in / /work/ /work/otto-bench/ /bio/ /contact/ /supporting-mdd/ /favicon.svg /does-not-exist/ $EXTRA_PATHS; do
               c=$(curl -sS -k --resolve "${host}:443:${ORIGIN_IP}" -o /tmp/r -w '%{http_code}' \
                     --max-time 20 "https://${host}${path}" || echo "000")
               t=$(grep -o '<title>[^<]*</title>' /tmp/r 2>/dev/null | head -1 | sed 's/<[^>]*>//g')
