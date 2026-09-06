@@ -1,0 +1,33 @@
+---
+interface Props {
+	token: string;
+	hex: string;
+	use: string;
+}
+const { token, hex, use } = Astro.props;
+---
+
+<div class="swatch">
+	<div class="chip" style={`background:${hex}`}></div>
+	<p class="label mt-2">{token}</p>
+	<p class="hex">{hex}</p>
+	<p class="use">{use}</p>
+</div>
+
+<style>
+	.chip {
+		aspect-ratio: 4 / 3;
+		border: 1px solid var(--color-gray-200);
+	}
+	.hex {
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		color: var(--color-gray-500);
+	}
+	.use {
+		margin-top: 0.25rem;
+		font-size: 0.8125rem;
+		line-height: 1.45;
+		color: var(--color-gray-600);
+	}
+</style>
