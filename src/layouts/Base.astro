@@ -8,15 +8,12 @@ interface Props {
 	description?: string;
 	/** Shown in the header's right-hand slot as a section marker. */
 	section?: string;
-	/** Keep the page out of search engines. Used by the design guide. */
-	noindex?: boolean;
 }
 
 const {
 	title,
 	description = 'Gabriel Prero — Design + Product Development leader and Industrial Designer in Chicago. 15+ years, 17 patents.',
 	section,
-	noindex = false,
 } = Astro.props;
 
 const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.tagline}`;
@@ -35,7 +32,6 @@ const path = Astro.url.pathname.slice(basePrefix.length) || '/';
 		<meta name="generator" content={Astro.generator} />
 		<title>{pageTitle}</title>
 		<meta name="description" content={description} />
-		{noindex && <meta name="robots" content="noindex, nofollow" />}
 		<meta property="og:title" content={pageTitle} />
 		<meta property="og:description" content={description} />
 		<meta property="og:type" content="website" />

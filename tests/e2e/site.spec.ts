@@ -9,7 +9,6 @@ const PAGES = [
 	{ route: '/bio/', heading: 'Bio' },
 	{ route: '/contact/', heading: 'Say hello' },
 	{ route: '/supporting-mdd/', heading: 'For Dummies' },
-	{ route: '/design-guide/', heading: 'Design guide' },
 ];
 
 /** Fails the test if the page logs an error or throws. */

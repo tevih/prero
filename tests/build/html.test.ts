@@ -44,9 +44,7 @@ beforeAll(() => {
 	}
 });
 
-const PAGE_ROUTES = ['/', '/bio/', '/contact/', '/design-guide/', '/supporting-mdd/', '/work/'];
-/** Pages that exist but are deliberately absent from the navigation. */
-const UNLISTED_ROUTES = ['/design-guide/'];
+const PAGE_ROUTES = ['/', '/bio/', '/contact/', '/supporting-mdd/', '/work/'];
 
 describe('build output', () => {
 	it('emits every top-level route plus one page per project', () => {
@@ -147,8 +145,7 @@ describe('accessibility basics', () => {
 	it('marks the current page in the primary nav', () => {
 		for (const [route, doc] of docs) {
 			const current = doc.querySelectorAll('a[aria-current="page"]');
-			const expected = UNLISTED_ROUTES.includes(route) ? 0 : 1;
-			expect(current.length, `${route} aria-current`).toBe(expected);
+			expect(current.length, `${route} aria-current`).toBe(1);
 		}
 	});
 
@@ -370,7 +367,7 @@ describe('shared hosting artifacts', () => {
 		const links = [...doc.querySelectorAll('a[href^="/"]')].map((a) =>
 			toRoute(a.getAttribute('href')!),
 		);
-		for (const route of PAGE_ROUTES.filter((r) => !UNLISTED_ROUTES.includes(r))) {
+		for (const route of PAGE_ROUTES) {
 			expect(links, `404 links to ${route}`).toContain(route);
 		}
 	});
@@ -384,52 +381,5 @@ describe('shared hosting artifacts', () => {
 		expect(conf, 'error document').toContain('ErrorDocument 404 /404.html');
 		expect(conf, 'immutable asset caching').toMatch(/max-age=31536000, immutable/);
 		expect(conf, 'html must revalidate').toMatch(/max-age=0, must-revalidate/);
-	});
-});
-
-describe('design guide', () => {
-	const ROUTE = '/design-guide/';
-	const VOCAB = resolve(__dirname, '../../docs/vocabulary.md');
-
-	it('is kept out of search engines, and nothing else is', () => {
-		for (const [route, doc] of docs) {
-			const robots = doc.querySelector('meta[name="robots"]')?.getAttribute('content') ?? '';
-			if (route === ROUTE) {
-				expect(robots).toContain('noindex');
-				expect(robots).toContain('nofollow');
-			} else {
-				expect(robots, `${route} must be indexable`).not.toContain('noindex');
-			}
-		}
-	});
-
-	it('is linked from nowhere on the site', () => {
-		for (const [route, doc] of docs) {
-			if (route === ROUTE) continue;
-			const hits = [...doc.querySelectorAll('a[href]')]
-				.map((a) => toRoute(a.getAttribute('href')!))
-				.filter((r) => r === ROUTE);
-			expect(hits, `${route} links to the design guide`).toEqual([]);
-		}
-	});
-
-	it('labels every element, and every label is in docs/vocabulary.md', () => {
-		const doc = docs.get(ROUTE)!;
-		const onPage = new Set(
-			[...doc.querySelectorAll('[data-spec]')].map((el) => el.getAttribute('data-spec')!),
-		);
-		expect(onPage.size).toBeGreaterThan(100);
-
-		const vocab = readFileSync(VOCAB, 'utf8');
-		const inDoc = new Set(
-			[...vocab.matchAll(/^\| \*\*([^*]+)\*\* \|/gm)].map((m) => m[1].trim()),
-		);
-		expect(inDoc.size).toBeGreaterThan(100);
-
-		const undocumented = [...onPage].filter((n) => !inDoc.has(n));
-		expect(undocumented, 'on the page but missing from docs/vocabulary.md').toEqual([]);
-
-		const unshown = [...inDoc].filter((n) => !onPage.has(n));
-		expect(unshown, 'in docs/vocabulary.md but not shown on the page').toEqual([]);
 	});
 });
