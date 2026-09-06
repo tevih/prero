@@ -41,7 +41,7 @@ jobs:
         if: always()
         env:
           SITE_URL: ${{ vars.SITE_URL }}
-          ORIGIN_IP: ${{ vars.ORIGIN_IP }}
+          ORIGIN_IP: ${{ secrets.ORIGIN_IP }}
         run: |
           host=$(echo "$SITE_URL" | sed -E 's#^https?://##; s#/.*##')
 
@@ -97,5 +97,5 @@ jobs:
             fi
           else
             echo
-            echo "  (set the ORIGIN_IP variable to test the origin server directly)"
+            echo "  (set the ORIGIN_IP secret to test the origin server directly)"
           fi

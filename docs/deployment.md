@@ -53,9 +53,9 @@ Settings → Secrets and variables → Actions.
 | `FTP_SERVER` | secret | from cPanel → FTP Accounts → *Configure FTP Client* |
 | `FTP_USERNAME` | secret | usually the full `user@domain` form |
 | `FTP_PASSWORD` | secret | |
-| `FTP_REMOTE_DIR` | variable | relative to the FTP account's home; `/` if the account is already rooted in the web root. Trailing slash required. |
+| `FTP_REMOTE_DIR` | variable | relative to the FTP account's home; `/` if the account is already rooted in the web root. Trailing slash required. Stays a variable: masking a `/` would blank every path in every log. |
 | `SITE_URL` | variable | `https://prero.com` |
-| `ORIGIN_IP` | variable | the server's IP, for the verify workflow |
+| `ORIGIN_IP` | secret | the server's IP, for the verify workflow. A secret only so it is masked in logs. |
 | `DEPLOY_BLUEHOST` | variable | `true` to enable the job; anything else skips it |
 
 Secrets are write-only. `gh secret set NAME` prompts for the value and keeps
@@ -77,6 +77,22 @@ them — but it will overwrite any that share a name with something in `dist/`.
 the 404 document, a one-year immutable cache on `/_astro/`, must-revalidate on
 HTML, `nosniff`, a referrer policy, and gzip. The HTTPS redirect is commented
 out — uncomment once cPanel has issued the certificate.
+
+## Repository hardening
+
+- **`main` is protected** — no force-pushes, no deletion, enforced for admins.
+- **Only allow-listed actions can run**: GitHub's own, plus
+  `SamKirkland/FTP-Deploy-Action`. Adding any other third-party action means
+  adding it to the allow-list in Settings → Actions → General first, and
+  pinning it to a commit SHA.
+- **The FTP uploader is pinned to a commit SHA**, not a version tag, because
+  it is the one step that receives the FTP password. A tag can be moved; a
+  SHA cannot.
+- **Dependabot** opens a grouped monthly PR for the workflow actions and a PR
+  whenever an npm dependency has a published security fix. It merges nothing
+  itself.
+- **Workflow tokens default to read-only.** Jobs that need to write (releases,
+  rollback) ask for it explicitly.
 
 ## Verifying without deploying
 

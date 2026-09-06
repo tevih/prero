@@ -103,7 +103,8 @@ jobs:
         run: npx vitest run tests/build
 
       - name: Upload to Bluehost over FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        # Pinned to a commit, not a tag: this step receives the FTP password.
+        uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287 # v4.4.0
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}

@@ -38,7 +38,9 @@ before searching the code. When you add a visual element, give it a name: a
 - **Typographic quotes only:** ’ “ ”. Never `'` or `"` in copy.
 - **Reuse before you create.** Use the classes and column patterns in the
   design system. A new component needs the same markup on three pages.
-- **No new dependencies** without a stated reason in the commit.
+- **No new dependencies** without a stated reason in the commit. A new
+  third-party GitHub Action additionally needs adding to the repository's
+  actions allow-list and pinning to a commit SHA — see `docs/deployment.md`.
 
 ## Workflow
 

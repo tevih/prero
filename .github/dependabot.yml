@@ -1,0 +1,15 @@
+# Dependabot: version updates for the workflow actions only.
+#
+# Grouped and monthly, so it is one quiet pull request rather than a stream,
+# and it is what keeps the SHA-pinned FTP uploader current. npm is deliberately
+# left to Dependabot *security* updates (a repository setting) — version
+# updates for Astro would be noisy for no benefit.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']
