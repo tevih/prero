@@ -2,6 +2,10 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { parseHTML } from 'linkedom';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { projects } from '../../src/data/work';
+import { tips } from '../../src/data/guide';
+
+const PROJECT_COUNT = projects.length;
 
 const DIST = resolve(__dirname, '../../dist');
 
@@ -47,8 +51,8 @@ describe('build output', () => {
 		const routes = Object.keys(pages);
 		for (const route of PAGE_ROUTES) expect(routes, route).toContain(route);
 		const projectRoutes = routes.filter((r) => r.startsWith('/work/') && r !== '/work/');
-		expect(projectRoutes).toHaveLength(17);
-		expect(routes).toHaveLength(PAGE_ROUTES.length + 17);
+		expect(projectRoutes).toHaveLength(PROJECT_COUNT);
+		expect(routes).toHaveLength(PAGE_ROUTES.length + PROJECT_COUNT);
 	});
 
 	it('gives each page a unique, non-empty title and description', () => {
@@ -200,10 +204,10 @@ describe('links', () => {
 });
 
 describe('content made it into the HTML', () => {
-	it('lists all 17 projects on the work page', () => {
+	it('lists every project on the work page', () => {
 		const doc = docs.get('/work/')!;
-		expect(doc.querySelectorAll('ol > li').length).toBe(17);
-		expect(doc.querySelectorAll('article').length).toBe(17);
+		expect(doc.querySelectorAll('ol > li').length).toBe(PROJECT_COUNT);
+		expect(doc.querySelectorAll('article').length).toBe(PROJECT_COUNT);
 	});
 
 	it('renders the alarm-clock story with its single red accent', () => {
@@ -220,12 +224,12 @@ describe('content made it into the HTML', () => {
 		expect(accents[0].textContent).toBe('better');
 	});
 
-	it('renders all 12 tips with matching anchors in the guide', () => {
+	it('renders every tip with a matching anchor in the guide', () => {
 		const doc = docs.get('/supporting-mdd/')!;
-		for (let i = 1; i <= 12; i++) {
+		for (let i = 1; i <= tips.length; i++) {
 			expect(doc.getElementById(`tip-${i}`), `tip-${i} section`).not.toBeNull();
 		}
-		expect(doc.querySelectorAll('section[id^="tip-"]').length).toBe(12);
+		expect(doc.querySelectorAll('section[id^="tip-"]').length).toBe(tips.length);
 	});
 
 	it('carries a crisis resource on the guide', () => {
@@ -237,7 +241,7 @@ describe('content made it into the HTML', () => {
 	it('shows the copyright credit in the footer of every page', () => {
 		for (const [route, doc] of docs) {
 			const footer = doc.querySelector('footer')?.textContent ?? '';
-			expect(footer, `${route} credit`).toContain('Gabriel Prero 2023');
+			expect(footer, `${route} credit`).toContain(`Gabriel Prero ${new Date().getFullYear()}`);
 		}
 	});
 });
@@ -277,8 +281,8 @@ describe('project detail pages', () => {
 				.map((a) => toRoute(a.getAttribute('href')!))
 				.filter((r) => r.startsWith('/work/') && r !== '/work/'),
 		);
-		// 17 index rows and 17 plates both link out, deduped to 17 destinations.
-		expect(linked.size).toBe(17);
+		// Index rows and plates both link out; deduped, one destination per project.
+		expect(linked.size).toBe(PROJECT_COUNT);
 		for (const route of detailRoutes()) expect(linked, route).toContain(route);
 	});
 

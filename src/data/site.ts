@@ -1,3 +1,8 @@
+import { projects } from './work';
+
+/** Stamped at build time; the site rebuilds on every deploy, so this never goes stale. */
+export const copyrightYear = new Date().getFullYear();
+
 export const site = {
 	name: 'Gabriel Prero',
 	tagline: 'Design + Product_Development',
@@ -5,7 +10,7 @@ export const site = {
 	phone: '773.809.5234',
 	phoneHref: '+17738095234',
 	location: 'Chicago, IL 60645',
-	credit: 'Designed by Tevi Hirschhorn. All content © Copyright Gabriel Prero 2023',
+	credit: `Designed by Tevi Hirschhorn. All content © Copyright Gabriel Prero ${copyrightYear}`,
 };
 
 export const nav = [
@@ -29,7 +34,7 @@ export const origin: { text: string; accent?: string }[] = [
 export const facts = [
 	{ figure: '15+', label: 'Years of practice' },
 	{ figure: '17', label: 'Patents awarded' },
-	{ figure: '17', label: 'Selected projects' },
+	{ figure: String(projects.length), label: 'Selected projects' },
 	{ figure: '2021', label: 'ADEX Platinum' },
 ];
 
