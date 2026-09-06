@@ -13,6 +13,15 @@ Swiss typographic style. These instructions are read by Claude Code (via
 3. For any change to layout, type, colour, spacing or motion, read
    `docs/design-system.md` in full first.
 
+## The vocabulary
+
+The owner refers to elements by name — “the HP Billboard eyebrow”, “the Footer
+CTA”, “a Project Card”. Every name is defined in `docs/vocabulary.md` with the
+file it lives in, and shown live at `/design-guide/`. Resolve names there
+before searching the code. When you add a visual element, give it a name: a
+`<Spec>` or `<Tag>` on `src/pages/design-guide/index.astro` and a row in
+`docs/vocabulary.md`, in the same commit. The build tests fail if they differ.
+
 ## Hard rules
 
 - **Copy lives in `src/data/`.** Pages render data. Never put visitor-facing
@@ -41,7 +50,8 @@ Swiss typographic style. These instructions are read by Claude Code (via
 3. **Check the docs.** Did this change anything `docs/` describes — a file,
    a pattern, a rule, a command, a count? Update the doc in the same commit.
    Adding a page, a data export, a script, a test suite or a design pattern
-   always requires a doc update.
+   always requires a doc update. Adding a visual element requires a design
+   guide specimen and a vocabulary row.
 4. Commit with a message that says what changed and why. Do not push to
    `main` unless asked; pushes deploy.
 

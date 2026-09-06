@@ -143,6 +143,14 @@ at build time from `copyrightYear`; do not hard-code it.
    in `tests/e2e/site.spec.ts`.
 7. `npm test`.
 
+## Adding a component or visual pattern
+
+1. Build it with existing tokens and classes ([design-system.md](design-system.md)).
+2. Name it. Add a `<Spec name="…">` (or a `<Tag>` inside an existing spec) on
+   `src/pages/design-guide/index.astro` showing it, and a row in
+   [vocabulary.md](vocabulary.md) saying where it lives.
+3. `npm test` — the build suite checks the page and the vocabulary agree.
+
 ## What the tests catch
 
 Run `npm test` after every change. Failures are almost always one of these:

@@ -1,7 +1,8 @@
 # Design system
 
 Minimalist Swiss / International Typographic style. Red, black, white and
-grayscale only. Everything here is implemented in `src/styles/global.css` and
+grayscale only. Every element described here is rendered live, with its name,
+at `/design-guide/`; the names are mapped to files in [vocabulary.md](vocabulary.md). Everything here is implemented in `src/styles/global.css` and
 used by the pages in `src/pages/`; this document explains the intent so changes
 respect it.
 

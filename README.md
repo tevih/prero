@@ -33,6 +33,16 @@ run the tests, and tell you what it did. If something in the request would
 break the design rules — a new colour, a new font — it will say so and offer
 the closest thing that fits.
 
+## The design guide
+
+**https://tevih.github.io/prero/design-guide/**
+
+Every element on the site, shown with its name — “HP Billboard”, “Footer CTA”,
+“Project Card”, “Eyebrow”. Use those names when asking for a change and the
+assistant will know exactly what you mean. The page is hidden from search
+engines and is not linked from the site itself. (Once prero.com is live it
+will also be at `prero.com/design-guide/`.)
+
 ## Publishing
 
 Changes go live when they are pushed to the `main` branch on GitHub. Ask the

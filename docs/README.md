@@ -13,12 +13,15 @@ Every change follows the same loop:
    classes, components and patterns. If something genuinely needs a new
    pattern, add it to the design system in the same change.
 3. **After** — run `npm test`. Then ask: did this change anything these docs
-   describe? If yes, update the doc in the same commit.
+   describe? If yes, update the doc in the same commit. A new visual element
+   also needs a specimen on the design guide page and a row in
+   [vocabulary.md](vocabulary.md) — the tests enforce that they match.
 
 ## Which doc
 
 | Task | Read |
 | --- | --- |
+| The client named an element (“HP Billboard”, “eyebrow”) | [vocabulary.md](vocabulary.md) — then the design guide at `/design-guide/` |
 | Add, edit, reorder or remove a project | [content-guide.md](content-guide.md) § Projects |
 | Change copy on any page | [content-guide.md](content-guide.md) |
 | Add a page or section, change layout | [design-system.md](design-system.md), then [architecture.md](architecture.md) |
@@ -29,6 +32,8 @@ Every change follows the same loop:
 
 ## The docs
 
+- **[vocabulary.md](vocabulary.md)** — the name of every element on the site
+  and where to change it. Mirrored live at `/design-guide/`.
 - **[design-system.md](design-system.md)** — palette, the red budget, typography,
   the 16-column field, spacing, imagery rules, motion, components, page anatomy.
 - **[architecture.md](architecture.md)** — stack, directory layout, the data
