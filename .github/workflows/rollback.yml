@@ -1,0 +1,98 @@
+name: Rollback
+
+# Puts the site back to an earlier release. History is never rewritten: this
+# adds ONE new commit to main that restores the site's files to the target,
+# then runs the normal Test and deploy. Every commit that came after the
+# target is still in the log and can be fixed forward.
+#
+# Leave the target blank to go back to the most recent release that is not
+# what is live right now — i.e. "the last good one".
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Release tag (e.g. v2026-09-06-1432) or commit. Blank = previous release.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: Roll back
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Choose the target
+        id: target
+        env:
+          REQUESTED: ${{ inputs.target }}
+        run: |
+          head=$(git rev-parse HEAD)
+          target="$REQUESTED"
+          if [ -z "$target" ]; then
+            for tag in $(git tag -l 'v*' --sort=-creatordate); do
+              if [ "$(git rev-parse "$tag^{commit}")" != "$head" ]; then target="$tag"; break; fi
+            done
+          fi
+          if [ -z "$target" ]; then
+            echo "::error::No earlier release exists to roll back to."; exit 1
+          fi
+          if ! git rev-parse -q --verify "$target^{commit}" >/dev/null; then
+            echo "::error::'$target' is not a release tag or commit in this repository."; exit 1
+          fi
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+          echo "Rolling back to $target"
+
+      - name: Restore the site to the target
+        env:
+          TARGET: ${{ steps.target.outputs.target }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # The site and its tests move together. Workflows, docs, scripts and
+          # config stay at their current versions so the rollback machinery
+          # itself can never be rolled away.
+          for dir in src public tests; do
+            git rm -r -q --ignore-unmatch "$dir"
+            if git cat-file -e "$TARGET:$dir" 2>/dev/null; then
+              git checkout "$TARGET" -- "$dir"
+            fi
+          done
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "::error::main already matches $TARGET — nothing to roll back."; exit 1
+          fi
+
+          undone=$(git log --no-merges --pretty='- %s (%h)' "$TARGET..HEAD" -- src public tests)
+          git commit -q -F - <<EOF
+          Roll back to $TARGET
+
+          Restores src/, public/ and tests/ to the state released as $TARGET.
+          History is kept: the commits below remain on main and can be fixed
+          forward.
+
+          Undone:
+          $undone
+          EOF
+          git push origin HEAD:main
+
+      - name: Deploy the restored site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run "Test and deploy" --ref main
+          echo "Test and deploy started. It will tag a new release when it finishes."

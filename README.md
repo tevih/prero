@@ -56,6 +56,20 @@ publishes to the staging address within about two minutes:
 Publishing to **prero.com** is switched off for now, pending the decision about
 the old site. When it is switched on, the same push updates both.
 
+## If something goes wrong
+
+Tell the assistant:
+
+> Roll back the site to the last good version.
+
+About four minutes later the previous version is back. Nothing is lost —
+every version that was ever published is kept, and the change that went wrong
+can still be fixed later. You can also do it yourself on GitHub: *Actions →
+Rollback → Run workflow*.
+
+Every published version is listed under **Releases** on GitHub with a short
+summary of what changed in it.
+
 ## Reviewing before publishing
 
 Ask the assistant to *run the site locally* and it will give you a link

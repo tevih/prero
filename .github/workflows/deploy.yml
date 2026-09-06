@@ -119,3 +119,60 @@ jobs:
             **/.git*
             **/.git*/**
             **/node_modules/**
+
+  release:
+    name: Record the release
+    needs: [deploy, bluehost]
+    # Runs once everything that was going to deploy has deployed. Bluehost is
+    # skipped while DEPLOY_BLUEHOST is off, and that still counts as success.
+    if: >-
+      always() &&
+      needs.deploy.result == 'success' &&
+      (needs.bluehost.result == 'success' || needs.bluehost.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Tag the deployed commit and write release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BLUEHOST_RESULT: ${{ needs.bluehost.result }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          REPO: ${{ github.repository }}
+        run: |
+          tag="v$(date -u +%Y-%m-%d-%H%M)"
+          # Two deploys inside one minute would collide; disambiguate with the sha.
+          git rev-parse -q --verify "refs/tags/$tag" >/dev/null && tag="$tag-${GITHUB_SHA::7}"
+
+          prev=$(git tag -l 'v*' --sort=-creatordate | head -1)
+
+          {
+            echo "## Deployed to"
+            echo
+            echo "- GitHub Pages (staging): https://tevih.github.io/prero/"
+            if [ "$BLUEHOST_RESULT" = "success" ]; then
+              echo "- Bluehost (production): ${SITE_URL}"
+            else
+              echo "- Bluehost (production): not deployed — DEPLOY_BLUEHOST is off"
+            fi
+            echo
+            if [ -n "$prev" ]; then
+              echo "## Changes since $prev"
+              echo
+              git log --no-merges --pretty='- %s (%h)' "$prev..HEAD"
+              echo
+              echo "[Compare $prev → $tag](https://github.com/$REPO/compare/$prev...$tag)"
+            else
+              echo "## First recorded release"
+            fi
+            echo
+            echo "---"
+            echo "To put this version back: **Actions → Rollback → Run workflow**, target \`$tag\`."
+          } > notes.md
+
+          gh release create "$tag" --target "$GITHUB_SHA" --title "$tag" --notes-file notes.md
+          echo "Released $tag"

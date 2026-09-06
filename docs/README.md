@@ -29,6 +29,7 @@ Every change follows the same loop:
 | Understand where a file lives or why | [architecture.md](architecture.md) |
 | Run, build, test locally | [development.md](development.md) |
 | Deploy, or debug a deploy | [deployment.md](deployment.md) |
+| Something broke — roll back | [rollback.md](rollback.md) |
 
 ## The docs
 
@@ -43,6 +44,8 @@ Every change follows the same loop:
 - **[development.md](development.md)** — Node version, commands, the test suites.
 - **[deployment.md](deployment.md)** — GitHub Pages and Bluehost, secrets,
   verification, the current state of production.
+- **[rollback.md](rollback.md)** — the rollback button, reverting a commit,
+  and what is and is not protected.
 
 ## Ground rules that apply everywhere
 

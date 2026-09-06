@@ -67,12 +67,27 @@ npm run test:unit       # fast, no build
 
 Full list in `docs/development.md`.
 
+## Rolling back
+
+If the owner wants the site put back the way it was — however they phrase
+it — do not reach for `git reset` or `git push --force`. Run:
+
+```bash
+gh workflow run Rollback            # back to the previous release
+gh workflow run Rollback -f target=v2026-09-06-1432   # back to a named one
+```
+
+It adds one restoring commit and redeploys; nothing is lost. Releases are
+listed with `gh release list`. Full runbook in `docs/rollback.md`.
+
 ## Never
 
 - Never set the `DEPLOY_BLUEHOST` repository variable, edit secrets, or run
   `deploy:live` without an explicit instruction from the owner. Production
   state is documented in `docs/deployment.md`; read it before touching deploy.
 - Never commit `.env.deploy` or any credential.
+- Never force-push, rewrite history, or delete a tag or release. `main`
+  rejects force-pushes; do not try to work around that.
 - Never hard-code the copyright year, a project count, or a tip count.
 - Never add motion outside `data-reveal` / `data-draw`.
 - Never centre text, add shadows, rounded corners, gradients or emoji.

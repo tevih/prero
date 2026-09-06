@@ -11,6 +11,18 @@ targets in parallel.
 
 Pull requests run the tests but do not deploy.
 
+## Releases
+
+After every successful deploy the `release` job tags the deployed commit
+(`v2026-09-06-1432`) and publishes a GitHub Release whose notes list where it
+went and every commit since the previous release, with a compare link. The
+Releases page is therefore the list of every version that has ever been live.
+
+Rolling back to any of them is one action — see [rollback.md](rollback.md).
+
+`main` refuses force-pushes and deletion, enforced for admins as well, so
+history behind those tags cannot be lost.
+
 ## Base path
 
 Pages serves from a subpath, so `astro.config.mjs` defaults to
